@@ -3,22 +3,36 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using log4net.Config;
+using MyPluggableApplication.Core.Factories;
 using MyPluggableApplication.Core.Plugin;
+using MyPluggableApplication.Core.Readers;
 using Ninject;
 using Ninject.Extensions.Conventions;
+using Ninject.Extensions.Factory;
+using Ninject.Extensions.Logging.Log4net;
 
 namespace PluggableApplication
 {
     class Program
     {
         private static IKernel kernel;
+        private static IReaderFactory readerFactory;
         private static string pluginsDirectory = "plugins";
         private static PluginManager pluginManager;
 
         static void Main(string[] args)
         {
+            XmlConfigurator.Configure();
+
             // Create the IoC kernel
             kernel = CreateKernel();
+
+            // Get IReaderFactory
+            readerFactory = kernel.Get<IReaderFactory>();
+
+            // Get ReaderA
+            IReader readerA = readerFactory.CreateReader("ReaderA");
 
             // Get the full plugins directory
             pluginsDirectory = Path.Combine(Environment.CurrentDirectory, pluginsDirectory);
@@ -36,12 +50,24 @@ namespace PluggableApplication
                 Console.WriteLine("Plugin Resolved: '{0}'", plugin.Name);
             }
 
+            pluginManager.SendRead(readerA, "test!!!");
+
             Console.ReadKey();
         }
 
         private static IKernel CreateKernel()
         {
-            var kernel = new StandardKernel(new DependencyModule());
+            var settings = new NinjectSettings()
+            {
+                LoadExtensions = false
+            };
+
+            var kernel = new StandardKernel(
+                settings,
+                new Log4NetModule(), 
+                new DependencyModule());
+
+            kernel.Load<FuncModule>();
 
             return kernel;
         }

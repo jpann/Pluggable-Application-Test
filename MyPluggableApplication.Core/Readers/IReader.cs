@@ -7,7 +7,7 @@ namespace MyPluggableApplication.Core.Readers
 {
     public interface IReader
     {
-        string Read();
+        IEnumerable<string> Read();
         string Read(int id);
     }
 }

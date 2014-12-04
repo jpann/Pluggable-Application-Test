@@ -4,7 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using log4net.Plugin;
+using MyPluggableApplication.Core.Plugin;
+using MyPluggableApplication.Core.Readers;
 using Ninject.Extensions.Logging;
 using PluggableApplication.Extensions;
 
@@ -70,6 +71,14 @@ namespace PluggableApplication
 
                     this.mPlugins.Add(plugin);
                 }
+            }
+        }
+
+        public void SendRead(IReader reader, string message)
+        {
+            foreach (IPlugin plugin in this.mPlugins)
+            {
+                plugin.OnRead(reader, message);
             }
         }
     }

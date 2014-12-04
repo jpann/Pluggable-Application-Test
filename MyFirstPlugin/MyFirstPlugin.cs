@@ -31,7 +31,10 @@ namespace MyFirstPlugin
 
         public void OnRead(IReader reader, string message)
         {
-            Console.WriteLine("MyFirstPlugin.OnRead()");
+            var reads = reader.Read();
+
+            foreach (string line in reads)
+                Console.WriteLine("MyFirstPlugin.OnRead({0}) - {1}", message, line);
         }
     }
 }
