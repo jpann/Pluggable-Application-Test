@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using MyPluggableApplication.Core;
 using MyPluggableApplication.Core.Factories;
 using MyPluggableApplication.Core.Readers;
+using Ninject;
 using Ninject.Extensions.Factory;
 using Ninject.Modules;
 using Ninject.Parameters;
@@ -16,7 +18,10 @@ namespace PluggableApplication
         public override void Load()
         {
             this.Bind<IReaderFactory>()
-                .ToFactory(() => new UseFirstArgumentAsNameInstanceProvider()); 
+                .ToFactory(() => new UseFirstArgumentAsNameInstanceProvider());
+
+            this.Bind<ITesterFactory>()
+                .ToFactory(() => new UseFirstArgumentAsNameInstanceProvider());
 
             this.Bind<PluginManager>()
                 .ToSelf();
@@ -28,6 +33,16 @@ namespace PluggableApplication
             this.Bind<IReader>()
                 .To<ReaderB>()
                 .Named("ReaderB");
+
+            this.Bind<ITester>()
+                .To<Tester>()
+                .Named("ReaderA")
+                .WithConstructorArgument("reader", c => c.Kernel.Get<IReader>("ReaderA"));
+
+            this.Bind<ITester>()
+                .To<Tester>()
+                .Named("ReaderB")
+                .WithConstructorArgument("reader", c => c.Kernel.Get<IReader>("ReaderB"));
         }
     }
 

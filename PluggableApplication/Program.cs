@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Linq;
 using System.Text;
 using log4net.Config;
+using MyPluggableApplication.Core;
 using MyPluggableApplication.Core.Factories;
 using MyPluggableApplication.Core.Plugin;
 using MyPluggableApplication.Core.Readers;
@@ -25,14 +27,22 @@ namespace PluggableApplication
         {
             XmlConfigurator.Configure();
 
+            string readerType = "ReaderA";
+
             // Create the IoC kernel
             kernel = CreateKernel();
+
+            // Get ITesterFactory
+            var testerFactory = kernel.Get<ITesterFactory>();
+            var tester = testerFactory.CreateTester(readerType);
+
+            tester.Test(1);
 
             // Get IReaderFactory
             readerFactory = kernel.Get<IReaderFactory>();
 
             // Get ReaderA
-            IReader readerA = readerFactory.CreateReader("ReaderA");
+            IReader readerA = readerFactory.CreateReader(readerType);
 
             // Get the full plugins directory
             pluginsDirectory = Path.Combine(Environment.CurrentDirectory, pluginsDirectory);
